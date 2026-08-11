@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MemCards - Criador de Folhas de Flashcards A4</title>
+  <meta name="description" content="Aplicação web para criação, edição e impressão de folhas de cards de memorização (flashcards) em formato padrão A4 Sulfite.">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+
+  <!-- Barra Superior (Navbar Fixa) -->
+  <header class="navbar">
+    <div class="navbar-brand">
+      <div class="brand-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="3" y1="9" x2="21" y2="9"></line>
+          <line x1="9" y1="21" x2="9" y2="9"></line>
+        </svg>
+      </div>
+      <h1 class="brand-title">MemCards</h1>
+      <span class="brand-badge">A4 Sulfite (3x4)</span>
+    </div>
+
+    <div class="navbar-actions">
+      <button id="btn-add-sheet-nav" class="btn btn-secondary" title="Adicionar nova folha A4 em branco">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Adicionar Folha
+      </button>
+
+      <button id="btn-print-nav" class="btn btn-primary" title="Imprimir ou Salvar como PDF">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <polyline points="6 9 6 2 18 2 18 9"></polyline>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+          <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+        Imprimir / Gerar PDF
+      </button>
+    </div>
+  </header>
+
+  <!-- Área de Trabalho (Viewport Container com rolagem exclusiva) -->
+  <main class="viewport-container">
+    <div id="sheets-container">
+      <!-- As folhas A4 serão renderizadas dinamicamente aqui via app.js -->
+    </div>
+
+    <div class="floating-add-container">
+      <button id="btn-add-sheet-bottom" class="btn btn-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Adicionar Nova Folha A4
+      </button>
+    </div>
+  </main>
+
+</body>
+</html>
