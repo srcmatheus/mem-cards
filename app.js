@@ -75,6 +75,8 @@ function addSheet() {
 }
 
 function deleteSheet(sheetId) {
+  if (state.sheets.length <= 1) return;
+
   const sheetIndex = state.sheets.findIndex(s => s.id === sheetId);
   if (sheetIndex === -1) return;
 
@@ -135,6 +137,8 @@ function render() {
 
   container.innerHTML = '';
 
+  const canDelete = state.sheets.length > 1;
+
   state.sheets.forEach((sheet, sheetIndex) => {
     const sheetEl = document.createElement('article');
     sheetEl.className = 'a4-sheet';
@@ -148,6 +152,7 @@ function render() {
         <span>Folha ${sheetIndex + 1}</span>
         <span class="sheet-badge">12 Cards</span>
       </div>
+      ${canDelete ? `
       <button class="btn btn-danger-subtle btn-delete-sheet" title="Excluir esta folha">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <polyline points="3 6 5 6 21 6"></polyline>
@@ -155,11 +160,14 @@ function render() {
         </svg>
         Excluir Folha
       </button>
+      ` : ''}
     `;
 
-    // Attach delete sheet event listener
+    // Attach delete sheet event listener if button exists
     const deleteBtn = headerEl.querySelector('.btn-delete-sheet');
-    deleteBtn.addEventListener('click', () => deleteSheet(sheet.id));
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', () => deleteSheet(sheet.id));
+    }
 
     // Cards Grid (3x4)
     const gridEl = document.createElement('div');
