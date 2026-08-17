@@ -4,12 +4,49 @@
  */
 
 const STORAGE_KEY = 'memcards_sheets_v1';
+const THEME_STORAGE_KEY = 'memcards_theme_v1';
 const CARDS_PER_SHEET = 12;
 
 // --- State ---
 let state = {
   sheets: []
 };
+
+// --- Theme Management ---
+function getPreferredTheme() {
+  const saved = localStorage.getItem(THEME_STORAGE_KEY);
+  if (saved === 'light' || saved === 'dark') {
+    return saved;
+  }
+  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+
+function setTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch (e) {
+    console.warn('Unable to save theme preference:', e);
+  }
+
+  const themeBtn = document.getElementById('btn-theme-toggle');
+  if (themeBtn) {
+    const nextThemeLabel = theme === 'dark' ? 'Modo Claro' : 'Modo Escuro';
+    themeBtn.setAttribute('title', `Alternar para ${nextThemeLabel}`);
+    themeBtn.setAttribute('aria-label', `Alternar para ${nextThemeLabel}`);
+  }
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+  if (document.startViewTransition) {
+    document.startViewTransition(() => setTheme(newTheme));
+  } else {
+    setTheme(newTheme);
+  }
+}
 
 // --- Helper Functions ---
 function createEmptyCards() {
@@ -226,14 +263,20 @@ function render() {
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
+  // Theme Setup
+  const initialTheme = getPreferredTheme();
+  setTheme(initialTheme);
+
   loadState();
   render();
 
   // Button Listeners
+  const btnThemeToggle = document.getElementById('btn-theme-toggle');
   const btnAddNav = document.getElementById('btn-add-sheet-nav');
   const btnAddBottom = document.getElementById('btn-add-sheet-bottom');
   const btnPrintNav = document.getElementById('btn-print-nav');
 
+  if (btnThemeToggle) btnThemeToggle.addEventListener('click', toggleTheme);
   if (btnAddNav) btnAddNav.addEventListener('click', addSheet);
   if (btnAddBottom) btnAddBottom.addEventListener('click', addSheet);
   if (btnPrintNav) btnPrintNav.addEventListener('click', () => window.print());
