@@ -8,9 +8,9 @@ const THEME_STORAGE_KEY = 'memcards_theme_v1';
 const CARDS_PER_SHEET = 12;
 
 const TITLE_MAX_LENGTH = 32;
-const CONTENT_MAX_LENGTH = 280;
+const CONTENT_MAX_LENGTH = 320;
 
-const CONTENT_FONT_SIZES = ['0.92rem', '0.85rem', '0.78rem', '0.72rem', '0.66rem', '0.60rem'];
+const CONTENT_FONT_SIZES = ['0.92rem', '0.85rem', '0.78rem', '0.72rem', '0.66rem', '0.60rem', '0.55rem', '0.50rem'];
 
 // --- Dynamic Layout Scaling & Character Limits ---
 function adjustTitleLayout(textarea) {
@@ -19,7 +19,7 @@ function adjustTitleLayout(textarea) {
   textarea.rows = isMultiLine ? 2 : 1;
   textarea.style.fontSize = '1.05rem';
   textarea.style.height = 'auto';
-  textarea.style.height = (isMultiLine ? 46 : 26) + 'px';
+  textarea.style.height = (isMultiLine ? 48 : 26) + 'px';
 }
 
 function adjustContentFontSize(textarea) {
