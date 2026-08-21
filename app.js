@@ -10,15 +10,14 @@ const CARDS_PER_SHEET = 12;
 const TITLE_MAX_LENGTH = 30;
 const CONTENT_MAX_LENGTH = 280;
 
-const CONTENT_FONT_SIZES = ['1.05rem', '0.96rem', '0.88rem', '0.81rem', '0.74rem', '0.68rem', '0.62rem'];
+const CONTENT_FONT_SIZES = ['0.92rem', '0.85rem', '0.78rem', '0.72rem', '0.66rem', '0.60rem'];
 
 // --- Dynamic Layout Scaling & Character Limits ---
 function adjustTitleLayout(textarea) {
   if (!textarea) return;
-  const len = textarea.value.length;
-  textarea.style.fontSize = len > 16 ? '0.85rem' : '0.95rem';
+  textarea.style.fontSize = '1.08rem';
   textarea.style.height = 'auto';
-  textarea.style.height = Math.max(26, textarea.scrollHeight) + 'px';
+  textarea.style.height = Math.max(28, textarea.scrollHeight) + 'px';
 }
 
 function adjustContentFontSize(textarea) {
