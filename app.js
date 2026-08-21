@@ -7,7 +7,7 @@ const STORAGE_KEY = 'memcards_sheets_v1';
 const THEME_STORAGE_KEY = 'memcards_theme_v1';
 const CARDS_PER_SHEET = 12;
 
-const TITLE_MAX_LENGTH = 30;
+const TITLE_MAX_LENGTH = 32;
 const CONTENT_MAX_LENGTH = 280;
 
 const CONTENT_FONT_SIZES = ['0.92rem', '0.85rem', '0.78rem', '0.72rem', '0.66rem', '0.60rem'];
@@ -15,9 +15,11 @@ const CONTENT_FONT_SIZES = ['0.92rem', '0.85rem', '0.78rem', '0.72rem', '0.66rem
 // --- Dynamic Layout Scaling & Character Limits ---
 function adjustTitleLayout(textarea) {
   if (!textarea) return;
-  textarea.style.fontSize = '1.08rem';
+  const isMultiLine = textarea.value.length > 16 || textarea.value.includes('\n');
+  textarea.rows = isMultiLine ? 2 : 1;
+  textarea.style.fontSize = '1.05rem';
   textarea.style.height = 'auto';
-  textarea.style.height = Math.max(28, textarea.scrollHeight) + 'px';
+  textarea.style.height = (isMultiLine ? 46 : 26) + 'px';
 }
 
 function adjustContentFontSize(textarea) {
@@ -366,4 +368,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnPrintNav) btnPrintNav.addEventListener('click', () => window.print());
 
   window.addEventListener('resize', adjustAllSheetFontSizes);
+  window.addEventListener('beforeprint', () => {
+    document.querySelectorAll('.card-title-input').forEach((titleEl) => {
+      const isMulti = titleEl.value.length > 16 || titleEl.value.includes('\n');
+      titleEl.rows = isMulti ? 2 : 1;
+    });
+  });
 });
