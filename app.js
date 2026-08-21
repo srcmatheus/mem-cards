@@ -7,6 +7,53 @@ const STORAGE_KEY = 'memcards_sheets_v1';
 const THEME_STORAGE_KEY = 'memcards_theme_v1';
 const CARDS_PER_SHEET = 12;
 
+const TITLE_MAX_LENGTH = 30;
+const CONTENT_MAX_LENGTH = 280;
+
+const CONTENT_FONT_SIZES = ['1.05rem', '0.96rem', '0.88rem', '0.81rem', '0.74rem', '0.68rem', '0.62rem'];
+
+// --- Dynamic Layout Scaling & Character Limits ---
+function adjustTitleLayout(textarea) {
+  if (!textarea) return;
+  const len = textarea.value.length;
+  textarea.style.fontSize = len > 16 ? '0.85rem' : '0.95rem';
+  textarea.style.height = 'auto';
+  textarea.style.height = Math.max(26, textarea.scrollHeight) + 'px';
+}
+
+function adjustContentFontSize(textarea) {
+  if (!textarea) return;
+  textarea.style.fontSize = CONTENT_FONT_SIZES[0];
+  if (!textarea.clientHeight) return;
+
+  let i = 0;
+  while (textarea.scrollHeight > textarea.clientHeight && i < CONTENT_FONT_SIZES.length - 1) {
+    i++;
+    textarea.style.fontSize = CONTENT_FONT_SIZES[i];
+  }
+}
+
+function adjustAllSheetFontSizes() {
+  document.querySelectorAll('.card-title-input').forEach(adjustTitleLayout);
+  document.querySelectorAll('.card-content-input').forEach(adjustContentFontSize);
+}
+
+function updateCardCounter(cardEl, titleInput, contentInput) {
+  const counterEl = cardEl.querySelector('.card-counter');
+  if (!counterEl) return;
+
+  const isTitleFocused = document.activeElement === titleInput;
+  if (isTitleFocused) {
+    const len = titleInput.value.length;
+    counterEl.textContent = `Tít: ${len}/${TITLE_MAX_LENGTH}`;
+    counterEl.classList.toggle('warning', len >= TITLE_MAX_LENGTH - 4);
+  } else {
+    const len = contentInput.value.length;
+    counterEl.textContent = `${len}/${CONTENT_MAX_LENGTH}`;
+    counterEl.classList.toggle('warning', len >= CONTENT_MAX_LENGTH - 20);
+  }
+}
+
 // --- State ---
 let state = {
   sheets: []
@@ -154,8 +201,15 @@ function clearCard(sheetIndex, cardIndex) {
     if (cardEl) {
       const titleInput = cardEl.querySelector('.card-title-input');
       const contentInput = cardEl.querySelector('.card-content-input');
-      if (titleInput) titleInput.value = '';
-      if (contentInput) contentInput.value = '';
+      if (titleInput) {
+        titleInput.value = '';
+        adjustTitleLayout(titleInput);
+      }
+      if (contentInput) {
+        contentInput.value = '';
+        adjustContentFontSize(contentInput);
+      }
+      updateCardCounter(cardEl, titleInput, contentInput);
     }
   }
 }
@@ -230,34 +284,65 @@ function render() {
         clearCard(sheetIndex, cardIndex);
       });
 
-      // Title Input
-      const titleInput = document.createElement('input');
-      titleInput.type = 'text';
+      // Title Input (Textarea for automatic horizontal line wrapping)
+      const titleInput = document.createElement('textarea');
+      titleInput.rows = 1;
       titleInput.className = 'card-title-input';
       titleInput.placeholder = 'Título...';
+      titleInput.maxLength = TITLE_MAX_LENGTH;
       titleInput.value = card.title || '';
-      titleInput.addEventListener('input', (e) => {
-        handleInput(sheetIndex, cardIndex, 'title', e.target.value);
+
+      // Prevent manual Enter breaks in title, allowing smooth auto-wrap
+      titleInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+        }
       });
 
       // Content Textarea
       const contentInput = document.createElement('textarea');
       contentInput.className = 'card-content-input';
       contentInput.placeholder = 'Conteúdo do card...';
+      contentInput.maxLength = CONTENT_MAX_LENGTH;
       contentInput.value = card.content || '';
+
+      // Card Character Counter
+      const counterEl = document.createElement('span');
+      counterEl.className = 'card-counter';
+
+      titleInput.addEventListener('input', (e) => {
+        handleInput(sheetIndex, cardIndex, 'title', e.target.value);
+        adjustTitleLayout(titleInput);
+        adjustContentFontSize(contentInput);
+        updateCardCounter(cardEl, titleInput, contentInput);
+      });
+      titleInput.addEventListener('focus', () => updateCardCounter(cardEl, titleInput, contentInput));
+      titleInput.addEventListener('blur', () => updateCardCounter(cardEl, titleInput, contentInput));
+
       contentInput.addEventListener('input', (e) => {
         handleInput(sheetIndex, cardIndex, 'content', e.target.value);
+        adjustContentFontSize(contentInput);
+        updateCardCounter(cardEl, titleInput, contentInput);
       });
+      contentInput.addEventListener('focus', () => updateCardCounter(cardEl, titleInput, contentInput));
+      contentInput.addEventListener('blur', () => updateCardCounter(cardEl, titleInput, contentInput));
 
       cardEl.appendChild(clearBtn);
       cardEl.appendChild(titleInput);
       cardEl.appendChild(contentInput);
+      cardEl.appendChild(counterEl);
+      updateCardCounter(cardEl, titleInput, contentInput);
       gridEl.appendChild(cardEl);
     });
 
     sheetEl.appendChild(headerEl);
     sheetEl.appendChild(gridEl);
     container.appendChild(sheetEl);
+  });
+
+  // Adjust font sizes for all cards once appended to DOM layout
+  requestAnimationFrame(() => {
+    adjustAllSheetFontSizes();
   });
 }
 
@@ -280,4 +365,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnAddNav) btnAddNav.addEventListener('click', addSheet);
   if (btnAddBottom) btnAddBottom.addEventListener('click', addSheet);
   if (btnPrintNav) btnPrintNav.addEventListener('click', () => window.print());
+
+  window.addEventListener('resize', adjustAllSheetFontSizes);
 });
