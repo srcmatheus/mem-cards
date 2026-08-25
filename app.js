@@ -347,6 +347,54 @@ function render() {
   });
 }
 
+// --- Sidebar Management ---
+function openSidebar() {
+  const sidebar = document.getElementById('sidebar-menu');
+  const overlay = document.getElementById('sidebar-overlay');
+  const btnHamburger = document.getElementById('btn-hamburger');
+
+  if (sidebar) {
+    sidebar.classList.add('open');
+    sidebar.setAttribute('aria-hidden', 'false');
+  }
+  if (overlay) {
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+  }
+  if (btnHamburger) {
+    btnHamburger.classList.add('is-active');
+    btnHamburger.setAttribute('aria-expanded', 'true');
+  }
+}
+
+function closeSidebar() {
+  const sidebar = document.getElementById('sidebar-menu');
+  const overlay = document.getElementById('sidebar-overlay');
+  const btnHamburger = document.getElementById('btn-hamburger');
+
+  if (sidebar) {
+    sidebar.classList.remove('open');
+    sidebar.setAttribute('aria-hidden', 'true');
+  }
+  if (overlay) {
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+  }
+  if (btnHamburger) {
+    btnHamburger.classList.remove('is-active');
+    btnHamburger.setAttribute('aria-expanded', 'false');
+  }
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar-menu');
+  if (sidebar && sidebar.classList.contains('open')) {
+    closeSidebar();
+  } else {
+    openSidebar();
+  }
+}
+
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
   // Theme Setup
@@ -361,11 +409,39 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnAddNav = document.getElementById('btn-add-sheet-nav');
   const btnAddBottom = document.getElementById('btn-add-sheet-bottom');
   const btnPrintNav = document.getElementById('btn-print-nav');
+  const btnHamburger = document.getElementById('btn-hamburger');
+  const btnSidebarClose = document.getElementById('btn-sidebar-close');
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
+  const navItemInicio = document.getElementById('nav-item-inicio');
 
   if (btnThemeToggle) btnThemeToggle.addEventListener('click', toggleTheme);
   if (btnAddNav) btnAddNav.addEventListener('click', addSheet);
   if (btnAddBottom) btnAddBottom.addEventListener('click', addSheet);
   if (btnPrintNav) btnPrintNav.addEventListener('click', () => window.print());
+
+  // Sidebar Listeners
+  if (btnHamburger) btnHamburger.addEventListener('click', toggleSidebar);
+  if (btnSidebarClose) btnSidebarClose.addEventListener('click', closeSidebar);
+  if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
+
+  // Close sidebar on ESC key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeSidebar();
+    }
+  });
+
+  // Clicking "Início" smooth-scrolls to top and closes sidebar
+  if (navItemInicio) {
+    navItemInicio.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeSidebar();
+      const viewport = document.querySelector('.viewport-container');
+      if (viewport) {
+        viewport.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  }
 
   window.addEventListener('resize', adjustAllSheetFontSizes);
   window.addEventListener('beforeprint', () => {
