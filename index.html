@@ -68,6 +68,17 @@
 
   <!-- Área de Trabalho (Viewport Container com rolagem exclusiva) -->
   <main class="viewport-container">
+    <!-- Cabeçalho do Grupo de Folhas (Nomeação e estatísticas) -->
+    <div id="deck-header-container" class="deck-header-container">
+      <div class="deck-title-wrapper">
+        <label for="deck-title-input" class="sr-only">Nome do Grupo de Folhas</label>
+        <input type="text" id="deck-title-input" class="deck-title-input" placeholder="Nome do grupo de folhas (ex: Biologia - Capítulo 1)..." maxlength="64" autocomplete="off">
+      </div>
+      <div class="deck-meta-info">
+        <span id="deck-stats-badge" class="deck-stats-badge">1 folha • 12 cards</span>
+      </div>
+    </div>
+
     <div id="sheets-container">
       <!-- As folhas A4 serão renderizadas dinamicamente aqui via app.js -->
     </div>
@@ -119,8 +130,27 @@
           </a>
         </li>
       </ul>
+
+      <div class="sidebar-actions-wrapper">
+        <button id="btn-sidebar-new-deck" class="btn btn-primary btn-sidebar-new">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Novo Grupo de Folhas
+        </button>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-header">
+          <span>Folhas e Grupos Salvos</span>
+          <span id="sidebar-decks-count" class="sidebar-count-badge">0</span>
+        </div>
+        <ul id="sidebar-decks-list" class="sidebar-decks-list">
+          <!-- Renderizado dinamicamente via JS -->
+        </ul>
+      </div>
     </nav>
   </aside>
-
 </body>
 </html>
