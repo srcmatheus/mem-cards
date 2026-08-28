@@ -7,11 +7,63 @@ const STORAGE_KEY = 'memcards_sheets_v1';
 const DECKS_STORAGE_KEY = 'memcards_decks_v2';
 const THEME_STORAGE_KEY = 'memcards_theme_v1';
 const CARDS_PER_SHEET = 12;
+const MAX_SHEETS_PER_DECK = 10;
 
 const TITLE_MAX_LENGTH = 32;
 const CONTENT_MAX_LENGTH = 320;
 
 const CONTENT_FONT_SIZES = ['0.92rem', '0.85rem', '0.78rem', '0.72rem', '0.66rem', '0.60rem', '0.55rem', '0.50rem'];
+
+// --- Toast Notifications ---
+function showToast(message, type = 'danger', title = null, duration = 4000) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+
+  const defaultTitle = type === 'danger' ? 'Atenção' : 'Notificação';
+  const displayTitle = title || defaultTitle;
+
+  toast.innerHTML = `
+    <div class="toast-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    </div>
+    <div class="toast-body">
+      <span class="toast-title">${displayTitle}</span>
+      <span class="toast-message">${message}</span>
+    </div>
+    <button class="toast-close" title="Fechar notificação" aria-label="Fechar notificação">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    <div class="toast-progress"></div>
+  `;
+
+  const closeBtn = toast.querySelector('.toast-close');
+  const removeToast = () => {
+    if (toast.classList.contains('toast-hiding')) return;
+    toast.classList.add('toast-hiding');
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 300);
+  };
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', removeToast);
+  }
+
+  setTimeout(removeToast, duration);
+  container.appendChild(toast);
+}
 
 // --- State ---
 let state = {
@@ -260,6 +312,11 @@ function addSheet() {
   const activeDeck = getActiveDeck();
   if (!activeDeck) return;
 
+  if (activeDeck.sheets.length >= MAX_SHEETS_PER_DECK) {
+    showToast(`Limite máximo de ${MAX_SHEETS_PER_DECK} folhas por grupo atingido!`, 'danger', 'Limite Atingido');
+    return;
+  }
+
   const newSheet = {
     id: generateId('sheet'),
     cards: createEmptyCards()
@@ -286,10 +343,11 @@ function deleteSheet(sheetId) {
   const sheetIndex = activeDeck.sheets.findIndex(s => s.id === sheetId);
   if (sheetIndex === -1) return;
 
+  const deletedSheetNumber = sheetIndex + 1;
   const hasContent = activeDeck.sheets[sheetIndex].cards.some(c => c.title.trim() !== '' || c.content.trim() !== '');
 
   if (hasContent) {
-    const confirmDelete = confirm(`Tem certeza que deseja excluir a Folha ${sheetIndex + 1}? O conteúdo dos cards será perdido.`);
+    const confirmDelete = confirm(`Tem certeza que deseja excluir a Folha ${deletedSheetNumber}? O conteúdo dos cards será perdido.`);
     if (!confirmDelete) return;
   }
 
@@ -298,6 +356,8 @@ function deleteSheet(sheetId) {
 
   saveState();
   render();
+
+  showToast(`Folha ${deletedSheetNumber} foi excluída do grupo.`, 'danger', 'Folha Excluída');
 }
 
 function clearCard(sheetIndex, cardIndex) {
@@ -347,7 +407,8 @@ function updateDeckStatsBadge() {
 
   const sheetsCount = activeDeck.sheets.length;
   const cardsCount = sheetsCount * CARDS_PER_SHEET;
-  badgeEl.textContent = `${sheetsCount} ${sheetsCount === 1 ? 'folha' : 'folhas'} • ${cardsCount} cards`;
+  const isMax = sheetsCount >= MAX_SHEETS_PER_DECK;
+  badgeEl.textContent = `${sheetsCount} ${sheetsCount === 1 ? 'folha' : 'folhas'}${isMax ? ' (máx 10)' : ''} • ${cardsCount} cards`;
 }
 
 function renderSidebar() {
